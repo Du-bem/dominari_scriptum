@@ -12,15 +12,22 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 )
 
-func run(_ context.Context, quit chan error) {
+func run(ctx context.Context, quit chan error) {
 	fmt.Println("Running the Admin API with with privated Key!")
-	admin, err := server.NewAdminAPI()
+
+	var err error
+	if os.Getenv("USER") == "admin" {
+		_, err = server.NewAdminAPI(ctx) // Admin API
+	} else {
+		_, err = server.NewUserAPI(ctx) // User API
+	}
+
 	if err != nil {
 		quit <- err
 		return
 	}
 
-	go admin.RunServer() // Run the http server in a goroutine
+	go server.RunServer() // Run the http server in a goroutine
 }
 
 func main() {

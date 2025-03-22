@@ -24,7 +24,7 @@ func run(ctx context.Context, quit chan error) {
 		dbName = "admin.db"
 	} else {
 		_, err = server.NewUserAPI(ctx) // User API
-		dbName = "admin.db"
+		dbName = "user.db"
 	}
 
 	if err != nil {
@@ -32,7 +32,12 @@ func run(ctx context.Context, quit chan error) {
 		return
 	}
 
-	db.NewDatabase(dbName)
+	// If an error occurs when initializing the db, shutdown immediately
+	_, err = db.NewDatabase(ctx, dbName)
+	if err != nil {
+		quit <- err
+		return
+	}
 
 	go server.RunServer() // Run the http server in a goroutine
 }

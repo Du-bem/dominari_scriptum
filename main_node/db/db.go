@@ -1,13 +1,16 @@
 package db
 
 import (
+	"context"
 	"database/sql"
+	"time"
 
 	"github.com/Du-bem/dominari_scriptum/main_node/types"
 )
 
 type DB struct {
 	*sql.DB
+	ctx context.Context
 }
 
 const CREATE_DATABASE string = `
@@ -31,7 +34,7 @@ const CREATE_DATABASE string = `
 `
 
 // NewDatabase returns a new instance of the database
-func NewDatabase(fileName string) (*DB, error) {
+func NewDatabase(ctx context.Context, fileName string) (*DB, error) {
 	db, err := sql.Open("sqlite3", fileName)
 	if err != nil {
 		return nil, err
@@ -46,8 +49,12 @@ func NewDatabase(fileName string) (*DB, error) {
 	}, nil
 }
 
-func (d *DB) InsertSatelliteData(types.SatelliteData) (int, error) {
-	res, err := d.Exec("INSERT INTO satellite_data VALUES(?,?,?,?,?,?,?,?,?,?,?);", activity.Time, activity.Description)
+// Insert pushes the satellites raw data into the db.
+func (d *DB) Insert(checksum string, data *types.SatelliteRequestData) (int, error) {
+	res, err := d.ExecContext(d.ctx, "INSERT INTO satellite_data VALUES(?,?,?,?,?,?,?,?,?,?,?);",
+		data.Name, data.Position[0], data.Position[1], data.Position[2],
+		data.Velocity[0], data.Velocity[1], data.Velocity[2],
+		data.RecordedOn, time.Now().UTC(), time.Now().UTC(), checksum)
 	if err != nil {
 		return 0, err
 	}
@@ -57,4 +64,43 @@ func (d *DB) InsertSatelliteData(types.SatelliteData) (int, error) {
 		return 0, err
 	}
 	return int(id), nil
+}
+
+// List returns a batch of 10 records of the Satellite data if they exist
+func (d *DB) List(offset int) ([]*types.SatelliteUIData, error) {
+	rows, err := d.QueryContext(d.ctx,
+		"SELECT * FROM satellite_data ORDER BY id DESC OFFSET ? LIMIT 10", offset)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	data := make([]*types.SatelliteUIData, 0)
+	for rows.Next() {
+		i := types.SatelliteUIData{}
+		err = rows.Scan(&i.ID, &i.Name, &i.PositionX, &i.PositionY, &i.PositionZ,
+			&i.VelocityX, &i.VelocityY, &i.VelocityZ, &i.RecordedOn,
+			&i.CreatedOn, &i.UpdatedOn, &i.CheckSum)
+		if err != nil {
+			return nil, err
+		}
+		data = append(data, &i)
+	}
+	return data, nil
+}
+
+// SearchByID return the Satellite UI data identified by the record ID provided.
+func (d *DB) SearchByID(recordID int) (*types.SatelliteUIData, error) {
+	row := d.QueryRowContext(d.ctx, "SELECT * FROM satellite_data WHERE ID = ?", recordID)
+
+	i := types.SatelliteUIData{}
+	err := row.Scan(&i.ID, &i.Name, &i.PositionX, &i.PositionY, &i.PositionZ,
+		&i.VelocityX, &i.VelocityY, &i.VelocityZ, &i.RecordedOn,
+		&i.CreatedOn, &i.UpdatedOn, &i.CheckSum)
+	if err != nil {
+		return nil, err
+	}
+
+	return &i, nil
 }

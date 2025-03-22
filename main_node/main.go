@@ -10,6 +10,7 @@ import (
 
 	"github.com/Du-bem/dominari_scriptum/main_node/db"
 	"github.com/Du-bem/dominari_scriptum/main_node/server"
+	"github.com/Du-bem/dominari_scriptum/main_node/types"
 	_ "github.com/joho/godotenv/autoload"
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -19,11 +20,12 @@ func run(ctx context.Context, quit chan error) {
 
 	var err error
 	var dbName string
+	var serverAPI types.ServerAPI
 	if os.Getenv("USER") == "admin" {
-		_, err = server.NewAdminAPI(ctx) // Admin API
+		serverAPI.AccountWalletInfo, err = server.NewAdminAPI(ctx) // Admin API
 		dbName = "admin.db"
 	} else {
-		_, err = server.NewUserAPI(ctx) // User API
+		serverAPI.AccountWalletInfo, err = server.NewUserAPI(ctx) // User API
 		dbName = "user.db"
 	}
 
@@ -33,13 +35,13 @@ func run(ctx context.Context, quit chan error) {
 	}
 
 	// If an error occurs when initializing the db, shutdown immediately
-	_, err = db.NewDatabase(ctx, dbName)
+	serverAPI.DBInfo, err = db.NewDatabase(ctx, dbName)
 	if err != nil {
 		quit <- err
 		return
 	}
 
-	go server.RunServer() // Run the http server in a goroutine
+	go server.RunServer(serverAPI) // Run the http server in a goroutine
 }
 
 func main() {

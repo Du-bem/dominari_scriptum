@@ -6,21 +6,42 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/Du-bem/dominari_scriptum/main_node/types"
 	"github.com/gorilla/mux"
 )
 
-func handleUIRequest(w http.ResponseWriter, r *http.Request) {
+type serverAPI types.ServerAPI
+
+func (s serverAPI) handleAccBalance(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "UI API data handler is not yet implemented!")
+}
+func (s serverAPI) handleAccTx(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "UI API data handler is not yet implemented!")
+}
+func (s serverAPI) handleAccTxs(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "UI API data handler is not yet implemented!")
+}
+func (s serverAPI) handleListSatData(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "UI API data handler is not yet implemented!")
+}
+func (s *serverAPI) handleSearchSatData(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "UI API data handler is not yet implemented!")
 }
 
-func handleSatelliteRequest(w http.ResponseWriter, r *http.Request) {
+func (s *serverAPI) handleSatelliteData(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Satellite API data handler is not yet implemented!")
 }
 
-func RunServer() {
+func RunServer(val types.ServerAPI) {
+	s := serverAPI(val)
 	router := mux.NewRouter()
-	router.HandleFunc("/ui", handleUIRequest).Methods("GET")
-	router.HandleFunc("/data", handleSatelliteRequest).Methods("GET")
+	router.HandleFunc("/ui/balance", s.handleAccBalance).Methods("GET")
+	router.HandleFunc("/ui/tx", s.handleAccTx).Methods("GET")
+	router.HandleFunc("/ui/txs", s.handleAccTxs).Methods("GET")
+	router.HandleFunc("/ui/list", s.handleListSatData).Methods("GET")
+	router.HandleFunc("/ui/search", s.handleSearchSatData).Methods("GET")
+
+	router.HandleFunc("/data", s.handleSatelliteData).Methods("POST")
 
 	srv := &http.Server{
 		Handler:      router,

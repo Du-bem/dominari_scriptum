@@ -34,7 +34,7 @@ const CREATE_DATABASE string = `
 `
 
 // NewDatabase returns a new instance of the database
-func NewDatabase(ctx context.Context, fileName string) (*DB, error) {
+func NewDatabase(ctx context.Context, fileName string) (types.DBInfo, error) {
 	db, err := sql.Open("sqlite3", fileName)
 	if err != nil {
 		return nil, err

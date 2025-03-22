@@ -30,8 +30,19 @@ type SatelliteUIData struct {
 	CheckSum   string    `json:"checksum"`
 }
 
+type ServerAPI struct {
+	DBInfo
+	AccountWalletInfo
+}
+
 type AccountWalletInfo interface {
 	GetBalance() uint64
 	GetTransactions() ([]*response.Transaction, error)
 	GetTransaction(txID string) (*response.Transaction, error)
+}
+
+type DBInfo interface {
+	Insert(checksum string, data *SatelliteRequestData) (int, error)
+	List(offset int) ([]*SatelliteUIData, error)
+	SearchByID(recordID int) (*SatelliteUIData, error)
 }

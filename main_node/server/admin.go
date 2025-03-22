@@ -16,7 +16,7 @@ import (
 type AdminData struct {
 	CommonData
 	adminAPI *wallet.AdminAPI
-}
+} 
 
 // NewAdminAPI returns the accounts management interface for the  admin
 func NewAdminAPI(ctx context.Context) (types.AccountWalletInfo, error) {

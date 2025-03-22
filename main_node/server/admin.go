@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 
+	"github.com/Du-bem/dominari_scriptum/main_node/types"
 	wallet "github.com/bitcoin-sv/spv-wallet-go-client"
 	"github.com/bitcoin-sv/spv-wallet-go-client/commands"
 	"github.com/bitcoin-sv/spv-wallet-go-client/config"
@@ -18,7 +19,7 @@ type AdminData struct {
 }
 
 // NewAdminAPI returns the accounts management interface for the  admin
-func NewAdminAPI(ctx context.Context) (AccountWalletInfo, error) {
+func NewAdminAPI(ctx context.Context) (types.AccountWalletInfo, error) {
 	adminAPIData, err := wallet.NewAdminAPIWithXPriv(
 		config.New(config.WithAddr(os.Getenv("WALLET_URL"))), os.Getenv("USER_XPRIV"),
 	)

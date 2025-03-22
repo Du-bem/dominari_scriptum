@@ -8,24 +8,31 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/Du-bem/dominari_scriptum/main_node/db"
 	"github.com/Du-bem/dominari_scriptum/main_node/server"
 	_ "github.com/joho/godotenv/autoload"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 func run(ctx context.Context, quit chan error) {
 	fmt.Println("Running the Admin API with with privated Key!")
 
 	var err error
+	var dbName string
 	if os.Getenv("USER") == "admin" {
 		_, err = server.NewAdminAPI(ctx) // Admin API
+		dbName = "admin.db"
 	} else {
 		_, err = server.NewUserAPI(ctx) // User API
+		dbName = "admin.db"
 	}
 
 	if err != nil {
 		quit <- err
 		return
 	}
+
+	db.NewDatabase(dbName)
 
 	go server.RunServer() // Run the http server in a goroutine
 }

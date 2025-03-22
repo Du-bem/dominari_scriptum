@@ -1,6 +1,9 @@
-package server
+package types
 
 import "github.com/bitcoin-sv/spv-wallet/models/response"
+
+type SatelliteData struct {
+}
 
 type AccountWalletInfo interface {
 	GetBalance() uint64

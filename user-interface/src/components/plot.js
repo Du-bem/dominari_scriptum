@@ -86,12 +86,14 @@ class SolarSystem {
 
     // Create scene with space background
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color(0x1a0a2e);
+    this.scene.background = new THREE.Color(0x0a0a1a);
 
     // Setup renderer
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(this.renderer.domElement);
+    this.renderer.setSize(options.x, options.y);
+    document
+      .querySelector(options.element)
+      .appendChild(this.renderer.domElement);
 
     // Cartoon-style lighting
     const hemisphereLight = new THREE.HemisphereLight(0xffffbb, 0x080820, 1);
@@ -101,12 +103,7 @@ class SolarSystem {
     this.createSun();
 
     // Camera setup
-    this.camera = new THREE.PerspectiveCamera(
-      60,
-      window.innerWidth / window.innerHeight,
-      0.1,
-      1000
-    );
+    this.camera = new THREE.PerspectiveCamera(60, 1, 0.1, 1000);
     this.camera.position.set(0, 15, 5);
     this.camera.lookAt(0, 0, 0);
 
@@ -385,9 +382,9 @@ class SolarSystem {
 
   // Handle window resize
   onWindowResize() {
-    this.camera.aspect = window.innerWidth / window.innerHeight;
-    this.camera.updateProjectionMatrix();
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
+    // this.camera.aspect = window.innerWidth / window.innerHeight;
+    // this.camera.updateProjectionMatrix();
+    // this.renderer.setSize(window.innerWidth, window.innerHeight);
   }
 
   animate() {

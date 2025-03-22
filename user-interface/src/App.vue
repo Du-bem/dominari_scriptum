@@ -1,23 +1,24 @@
 <script setup>
 import Plot3d from "./components/3d.vue";
-import rightComp from "./components/right_comp.vue";
+import RightComp from "./components/right_comp.vue";
 </script>
 
 <template>
-  <rightComp />
+  <div class="main">
+    <RightComp />
+    <Plot3d class="plot" />
+  </div>
 </template>
 
 <style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+.plot {
+  border-top-right-radius: 12px;
+  border-bottom-right-radius: 12px;
+  border: 1px solid rgba(65, 90, 160, 0.3);
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 20px rgba(65, 120, 255, 0.1);
 }
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
+.main {
+  display: flex;
 }
 </style>

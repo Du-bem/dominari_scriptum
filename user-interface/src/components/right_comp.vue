@@ -171,6 +171,7 @@ import {
   RefreshCw,
   Shield
 } from "lucide-vue-next";
+import {getDataFromAPI} from "./getData.js";
 
 // Astral Body Types Dropdown
 const dropdownOpen = ref(false);
@@ -202,8 +203,8 @@ const formatCoordinate = value => {
 };
 
 const formatChecksum = value => {
-  if (value.length > 32) {
-    return value.slice(0, 32);
+  if (value.length > 22) {
+    return `${value.slice(0, 22)}...`;
   }
   return value;
 };
@@ -286,21 +287,13 @@ const classifyObject = name => {
 
 // Fetch data based on selected body type
 const fetchData = async () => {
-  const data = {
-    name: "earth",
-    time: 2433,
-    position: [1432, 123, 234],
-    velocity: [242, 43, 213],
-    checksum: "SHA23124214214243"
-  };
+  const data = await getDataFromAPI();
   loading.value = true;
   error.value = null;
 
   try {
     // In a real application, this would filter by the selected body type
     // For demonstration, we'll simulate a delay
-    await new Promise(resolve => setTimeout(resolve, 800));
-
     // Generate data based on selected type
     const type =
       selectedBodyType.value === "All Bodies"
@@ -374,15 +367,13 @@ onMounted(() => {
     rgba(16, 24, 48, 0.8) 0%,
     rgba(8, 8, 24, 1) 100%
   );
-  min-height: 100vh;
 }
 
 /* Tracker Panel Styling */
 .tracker-panel {
-  width: 350px;
+  width: 100%;
   background-color: rgba(16, 24, 48, 0.4);
   border-top-left-radius: 12px;
-  border-bottom-left-radius: 12px;
   border: 1px solid rgba(65, 90, 160, 0.3);
   overflow: hidden;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 20px rgba(65, 120, 255, 0.1);
@@ -582,7 +573,7 @@ onMounted(() => {
 }
 
 .checksum-data {
-  margin-left: 1.2rem;
+  margin-left: auto;
 }
 
 @media (max-width: 400px) {

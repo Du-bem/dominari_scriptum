@@ -11,7 +11,7 @@ from encryption import encrypt_json_to_string, decrypt_json_from_string
 import requests
 
 # Define constants
-IP = "10.44.63.237"
+IP = "192.168.0.103"
 PORT = "7777"
 ENDPOINT = "/api/sendData"
 

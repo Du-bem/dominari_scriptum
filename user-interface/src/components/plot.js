@@ -1,62 +1,6 @@
 import * as THREE from "three";
+import Planet from "./planet.js";
 
-class Object3D {
-  name;
-  position = [0, 0, 0];
-  color;
-  // Size is now a direct property of the object
-  size;
-  // Reference to the source object
-  sourceObject;
-  // Actual mesh for the object (no longer using points)
-  mesh = null;
-
-  constructor(
-    name,
-    sourceObject = null,
-    pos = [0, 0, 0],
-    color = 0xffffff,
-    size = 1.0
-  ) {
-    this.name = name;
-    this.sourceObject = sourceObject;
-    this.position = pos;
-    this.color = color;
-    this.size = size;
-  }
-
-  // Update from source object if available
-  updateFromSource() {
-    if (
-      this.sourceObject &&
-      typeof this.sourceObject.getPosition === "function"
-    ) {
-      this.position = this.sourceObject.getPosition();
-    }
-    if (this.sourceObject && typeof this.sourceObject.getColor === "function") {
-      this.color = this.sourceObject.getColor();
-    }
-    if (this.sourceObject && typeof this.sourceObject.getSize === "function") {
-      this.size = this.sourceObject.getSize();
-    }
-    return this;
-  }
-
-  updatePosition(pos) {
-    this.position = pos;
-    return this;
-  }
-
-  updateColor(color) {
-    this.color = color;
-    return this;
-  }
-
-  updateSize(size) {
-    this.size = size;
-    return this;
-  }
-}
 
 class SolarSystem {
   time;
@@ -66,12 +10,13 @@ class SolarSystem {
   i = 0;
   objects = [];
   customAnimationCallback = null;
-  minSize = 0.05;
+  minSize = 0.0005;
   maxSize = 2.0;
   // New: scaling factor for physical size to visual size
-  sizeScaleFactor = 1.0;
+  sizeScaleFactor = 0.1;
   // Use a higher detail level for larger planets
   sphereSegments = 32;
+  prediction = false;
 
   constructor(time, objectsData = [], options = {}) {
     this.time = time;
@@ -104,7 +49,7 @@ class SolarSystem {
 
     // Camera setup
     this.camera = new THREE.PerspectiveCamera(60, 1, 0.1, 1000);
-    this.camera.position.set(0, 15, 5);
+    this.camera.position.set(0, 4, 2.5);
     this.camera.lookAt(0, 0, 0);
 
     // Add starfield and objects
@@ -122,7 +67,7 @@ class SolarSystem {
     this.scene.add(pointLight);
 
     // Sun visual representation
-    const sunSize = 0.25;
+    const sunSize = 0.15;
     const geometry = new THREE.SphereGeometry(sunSize, 32, 32);
 
     // Glowing core material
@@ -201,34 +146,25 @@ class SolarSystem {
     // Add new objects to the array
     for (let data of objectsData) {
       this.addObject(
-        data.name,
-        data.sourceObject || null,
-        data.pos || [0, 0, 0],
-        data.color !== undefined ? data.color : 0xffffff,
-        data.size !== undefined ? data.size : 1.0
+        data
       );
     }
   }
 
   // Method to add a single object with a source object reference
   addObject(
-    name,
-    sourceObject = null,
-    pos = [0, 0, 0],
-    color = 0xffffff,
-    size = 1.0
+    planet
   ) {
-    const obj = new Object3D(name, sourceObject, pos, color, size);
-    this.objects.push(obj);
+    this.objects.push(planet);
 
     // Create a mesh for the object
-    this.createObjectMesh(obj);
+    this.createObjectMesh(planet);
 
-    return obj; // Return the added object
+    return planet; // Return the added object
   }
 
   createObjectMesh(obj) {
-    const visualSize = this.calculateVisualSize(obj.size);
+    const visualSize = this.calculateVisualSize(obj.diameter);
 
     // Main geometry
     const geometry = new THREE.SphereGeometry(
@@ -262,9 +198,10 @@ class SolarSystem {
     );
 
     mainMesh.add(outlineMesh);
-    mainMesh.position.set(...obj.position);
+    
+    mainMesh.position.set(...obj.pos);
 
-    // Add subtle animation offset
+    // // Add subtle animation offset
     mainMesh.userData.phase = Math.random() * Math.PI * 2;
 
     this.scene.add(mainMesh);
@@ -274,10 +211,7 @@ class SolarSystem {
   // Calculate visual size based on actual size
   calculateVisualSize(actualSize) {
     // Apply size scaling and clamp between min and max size
-    return Math.max(
-      this.minSize,
-      Math.min(this.maxSize, actualSize * this.sizeScaleFactor)
-    );
+    return actualSize;
   }
 
   // Method to get an object by name
@@ -340,7 +274,6 @@ class SolarSystem {
   updateMeshes() {
     for (let i = 0; i < this.objects.length; i++) {
       const obj = this.objects[i];
-      obj.updateFromSource();
 
       if (obj.mesh) {
         // Update position with bouncy animation
@@ -390,27 +323,28 @@ class SolarSystem {
   animate() {
     requestAnimationFrame(this.animate.bind(this));
 
-    // Custom animation with more exaggerated motion
-    if (this.customAnimationCallback) {
-      this.customAnimationCallback(this.objects, this.i);
-    } else {
-      this.objects.forEach((obj, index) => {
-        if (obj.sourceObject) return;
-        const radius = 3 + index * 2;
-        const speed = 0.02 / (1 + index * 0.2);
-        const angle = this.i * speed;
+    if(this.prediction){
 
-        obj.updatePosition([
-          radius * Math.sin(angle),
-          0,
-          radius * Math.cos(angle)
-        ]);
-      });
+      // Update each planet using the new physics
+      const deltaTime = 1; // Adjust as needed
+      for (let index = 0; index < 1; index++) {
+        this.objects.forEach(planet => {
+          if (planet instanceof Planet) {
+            planet.update(deltaTime, this.objects);
+          }
+        });
+        
+      }
+      this.updateAllMeshes();
     }
-
-    this.updateMeshes();
-    this.i += 0.02;
+    
+    // Render the scene
     this.renderer.render(this.scene, this.camera);
+  }
+
+
+  enablePrediction(choice){
+    this.prediction = choice;
   }
 
   // Clear all objects

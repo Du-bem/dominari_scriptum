@@ -38,7 +38,7 @@ def receive_data():
 
         decrypted_data = decrypt_json_from_string(encrypted_data)
 
-        sendData(decrypted_data)
+#        sendData(decrypted_data)
 
         print(f"Received encrypted data: {decrypted_data}")
 

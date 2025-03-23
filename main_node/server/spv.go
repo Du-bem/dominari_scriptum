@@ -34,15 +34,15 @@ func NewUserAPI(ctx context.Context) (types.AccountWalletInfo, error) {
 		return nil, err
 	}
 
-	res, err := userAPI.XPub(ctx)
-	if err != nil {
-		return nil, err
-	}
+	// res, err := userAPI.XPub(ctx)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	return &UserData{
 		CommonData: CommonData{
 			ctx:     ctx,
-			accInfo: res,
+			accInfo: &response.Xpub{},
 		},
 		userAPIData: userAPI,
 	}, nil

@@ -62,7 +62,7 @@ func (s serverAPI) handleAccountTxs(w http.ResponseWriter, r *http.Request) {
 func (s serverAPI) handleListSatelliteData(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(" ListSatelliteData is Serving: ", r.URL.String())
 
-	if adminMiddleware(w) {
+	if nonAdminMiddleware(w) {
 		return // exit prematurely
 	}
 
@@ -92,7 +92,7 @@ func (s serverAPI) handleListSatelliteData(w http.ResponseWriter, r *http.Reques
 func (s *serverAPI) handleSearchSatelliteByID(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(" SearchSatelliteByID is Serving: ", r.URL.String())
 
-	if adminMiddleware(w) {
+	if nonAdminMiddleware(w) {
 		return // exit prematurely
 	}
 
@@ -121,7 +121,7 @@ func (s *serverAPI) handleSearchSatelliteByID(w http.ResponseWriter, r *http.Req
 // handleSatelliteDataStore generates a SHA256 checksum of the data before storing
 // in the database.
 func (s *serverAPI) handleSatelliteDataStore(w http.ResponseWriter, r *http.Request) {
-	if adminMiddleware(w) {
+	if nonAdminMiddleware(w) {
 		return // exit prematurely
 	}
 
@@ -151,11 +151,11 @@ func (s *serverAPI) handleSatelliteDataStore(w http.ResponseWriter, r *http.Requ
 	w.WriteHeader(http.StatusOK)
 }
 
-// adminMiddleware restricts access to end point only to the admin
-func adminMiddleware(w http.ResponseWriter) bool {
-	if os.Getenv("USER_TYPE") != "admin" {
+// nonAdminMiddleware restricts access to end point only to normal users.
+func nonAdminMiddleware(w http.ResponseWriter) bool {
+	if os.Getenv("USER_TYPE") != "user" {
 		w.WriteHeader(http.StatusForbidden)
-		fmt.Fprintf(w, `{"error": "missing permissions"}`)
+		fmt.Fprintf(w, `{"error": "normal user permissions required"}`)
 		return true
 	}
 	return false

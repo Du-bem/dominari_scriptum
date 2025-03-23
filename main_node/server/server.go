@@ -148,7 +148,15 @@ func (s *serverAPI) handleSatelliteDataStore(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
+	// Push the checksum string to the bsv blockchain
+	txID, err := s.PublishCheckSum(checkSumStr)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, `{"error" : "%s"}`, err)
+	} else {
+		fmt.Println("Checksum TxID is: ", txID)
+		w.WriteHeader(http.StatusOK)
+	}
 }
 
 // nonAdminMiddleware restricts access to end point only to normal users.

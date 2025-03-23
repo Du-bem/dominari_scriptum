@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 
@@ -66,4 +67,8 @@ func (a *AdminData) GetTransactions() ([]*response.Transaction, error) {
 // GetTransaction returns the transactions associated with a given tx ID
 func (a *AdminData) GetTransaction(txID string) (*response.Transaction, error) {
 	return a.adminAPI.Transaction(a.ctx, txID)
+}
+
+func (a *AdminData) PublishCheckSum( /*checksum*/ _ string) (string, error) {
+	return "", errors.New("normal user permissions only required")
 }

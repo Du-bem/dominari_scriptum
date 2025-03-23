@@ -62,6 +62,7 @@ type AccountWalletInfo interface {
 	GetBalance() uint64
 	GetTransactions() ([]*response.Transaction, error)
 	GetTransaction(txID string) (*response.Transaction, error)
+	PublishCheckSum(checksum string) (string, error)
 }
 
 type DBInfo interface {

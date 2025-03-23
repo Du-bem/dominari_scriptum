@@ -35,16 +35,17 @@ func NewUserAPI(ctx context.Context) (types.AccountWalletInfo, error) {
 		return nil, err
 	}
 
-	// res, err := userAPI.XPub(context.Background())
-	// if err != nil {
-	// 	return nil, err
-	// }
+	res, err := userAPI.XPub(ctx)
+	if err != nil {
+		// NB: This hack implemented below is to bypass the restriction on spv.money site.
+		// return nil, err
+		res = &response.Xpub{}
+	}
 
 	return &UserData{
 		CommonData: CommonData{
-			ctx: ctx,
-			// accInfo: res,
-			accInfo: &response.Xpub{},
+			ctx:     ctx,
+			accInfo: res,
 		},
 		userAPIData: userAPI,
 	}, nil
@@ -80,7 +81,7 @@ func (a *UserData) PublishCheckSum(checksum string) (string, error) {
 		Config: response.TransactionConfig{
 			Outputs: []*response.TransactionOutput{
 				{
-					OpReturn: &response.OpReturn{StringParts: []string{"hello", "world"}},
+					OpReturn: &response.OpReturn{StringParts: []string{"checksum:", checksum}},
 				},
 			},
 		},
@@ -93,7 +94,7 @@ func (a *UserData) PublishCheckSum(checksum string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	fmt.Printf("Finalized draft transaction hex: %s\n", finalized)
+	fmt.Printf("Finalized draft transaction hex: %s\n\n", finalized)
 
 	tx, err := a.userAPIData.RecordTransaction(a.ctx, &commands.RecordTransaction{
 		Hex:         finalized,

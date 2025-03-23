@@ -148,6 +148,8 @@ func (s *serverAPI) handleSatelliteDataStore(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	fmt.Println("Checksum Hash is: ", checkSumStr)
+
 	// Push the checksum string to the bsv blockchain
 	txID, err := s.PublishCheckSum(checkSumStr)
 	if err != nil {

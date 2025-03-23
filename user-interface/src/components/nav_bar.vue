@@ -13,22 +13,6 @@
         <a href="#" class="nav-link">Analytics</a>
         <a href="#" class="nav-link">Settings</a>
       </div>
-
-      <!-- Action Icons -->
-      <div class="action-icons">
-        <button class="icon-button">
-          <Search class="icon" />
-        </button>
-        <button class="icon-button">
-          <Bell class="icon" />
-        </button>
-        <button class="icon-button">
-          <User class="icon" />
-        </button>
-        <button class="icon-button mobile-menu">
-          <Menu class="icon" />
-        </button>
-      </div>
     </nav>
   </div>
 </template>
@@ -46,7 +30,8 @@ import { Search, Bell, User, Menu } from "lucide-vue-next";
     rgba(16, 24, 48, 0.8) 0%,
     rgba(8, 8, 24, 1) 100%
   );
-  min-height: 100vh;
+
+  margin-bottom: 24px;
 }
 
 .nav-bar {
@@ -58,6 +43,8 @@ import { Search, Bell, User, Menu } from "lucide-vue-next";
   justify-content: space-between;
   align-items: center;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
 }
 
 .brand {

@@ -2,13 +2,15 @@
 import Plot3d from "./components/3d.vue";
 import RightComp from "./components/right_comp.vue";
 import Transactions from "./components/transactions.vue";
+import NavBar from "./components/nav_bar.vue";
 </script>
 
 <template>
+  <NavBar />
   <div class="main">
     <RightComp />
     <Plot3d class="plot" />
-    <Transactions class="transactions"/>
+    <Transactions class="transactions" />
   </div>
 </template>
 
@@ -25,7 +27,7 @@ import Transactions from "./components/transactions.vue";
   grid-template-columns: 1fr 2.1fr;
 }
 
-.transactions{
+.transactions {
   grid-column: 1/3;
 }
 </style>

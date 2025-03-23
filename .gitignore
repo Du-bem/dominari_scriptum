@@ -1,5 +1,4 @@
-*.mod
 *.yaml
 build
-# *env
+*env
 *.db

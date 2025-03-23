@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
@@ -31,7 +32,7 @@ func (s serverAPI) handleAccountTx(w http.ResponseWriter, r *http.Request) {
 	txID, ok := vars["key"]
 	if ok {
 		data, err := s.GetTransaction(txID)
-		if err != nil {
+		if err == nil {
 			jData, _ := json.Marshal(data)
 			w.Header().Set("Content-Type", "application/json")
 			w.Write(jData)
@@ -47,7 +48,7 @@ func (s serverAPI) handleAccountTxs(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(" AccountTxs is Serving: ", r.URL.String())
 
 	data, err := s.GetTransactions()
-	if err != nil {
+	if err == nil {
 		jData, _ := json.Marshal(data)
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(jData)
@@ -61,12 +62,16 @@ func (s serverAPI) handleAccountTxs(w http.ResponseWriter, r *http.Request) {
 func (s serverAPI) handleListSatelliteData(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(" ListSatelliteData is Serving: ", r.URL.String())
 
+	if adminMiddleware(w) {
+		return // exit prematurely
+	}
+
 	vars := mux.Vars(r)
 	val, ok := vars["offset"]
 	if ok {
 		offset, _ := strconv.Atoi(val)
 		data, err := s.List(offset)
-		if err != nil {
+		if err == nil {
 			jData, _ := json.Marshal(data)
 			w.Header().Set("Content-Type", "application/json")
 			w.Write(jData)
@@ -81,12 +86,16 @@ func (s serverAPI) handleListSatelliteData(w http.ResponseWriter, r *http.Reques
 func (s *serverAPI) handleSearchSatelliteByID(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(" SearchSatelliteByID is Serving: ", r.URL.String())
 
+	if adminMiddleware(w) {
+		return // exit prematurely
+	}
+
 	vars := mux.Vars(r)
 	txID, ok := vars["txid"]
 	if ok {
 		id, _ := strconv.Atoi(txID)
 		data, err := s.SearchByID(id)
-		if err != nil {
+		if err == nil {
 			jData, _ := json.Marshal(data)
 			w.Header().Set("Content-Type", "application/json")
 			w.Write(jData)
@@ -100,6 +109,10 @@ func (s *serverAPI) handleSearchSatelliteByID(w http.ResponseWriter, r *http.Req
 // handleSatelliteDataStore generates a SHA256 checksum of the data before storing
 // in the database.
 func (s *serverAPI) handleSatelliteDataStore(w http.ResponseWriter, r *http.Request) {
+	if adminMiddleware(w) {
+		return // exit prematurely
+	}
+
 	var data types.SatelliteRequestData
 
 	err := json.NewDecoder(r.Body).Decode(&data)
@@ -120,6 +133,16 @@ func (s *serverAPI) handleSatelliteDataStore(w http.ResponseWriter, r *http.Requ
 	w.WriteHeader(http.StatusOK)
 }
 
+// adminMiddleware restricts access to end point only to the admin
+func adminMiddleware(w http.ResponseWriter) bool {
+	if os.Getenv("USER_TYPE") != "admin" {
+		w.WriteHeader(http.StatusForbidden)
+		fmt.Fprintf(w, `{"error": "missing permissions"}`)
+		return true
+	}
+	return false
+}
+
 // RunServer takes a server API interface that exposes all the methods needed to
 // serve all the http requests.
 func RunServer(val types.ServerAPI) {
@@ -128,9 +151,10 @@ func RunServer(val types.ServerAPI) {
 	router.HandleFunc("/ui/balance", s.handleAccountBalance).Methods("GET")
 	router.HandleFunc("/ui/tx/{key}", s.handleAccountTx).Methods("GET")
 	router.HandleFunc("/ui/txs", s.handleAccountTxs).Methods("GET")
+
+	// Protected endpoints: Only accessible to admin
 	router.HandleFunc("/ui/list/{offset:[0-9]+}", s.handleListSatelliteData).Methods("GET")
 	router.HandleFunc("/ui/search/{txid:[0-9]+}", s.handleSearchSatelliteByID).Methods("GET")
-
 	router.HandleFunc("/data", s.handleSatelliteDataStore).Methods("POST")
 
 	srv := &http.Server{

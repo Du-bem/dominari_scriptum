@@ -21,7 +21,7 @@ func run(ctx context.Context, quit chan error) {
 	var err error
 	var dbName string
 	var serverAPI types.ServerAPI
-	if os.Getenv("USER") == "admin" {
+	if os.Getenv("USER_TYPE") == "admin" {
 		serverAPI.AccountWalletInfo, err = server.NewAdminAPI(ctx) // Admin API
 		dbName = "admin.db"
 	} else {

@@ -43,7 +43,11 @@ AU_to_meters = Decimal('1.496e11')  # meters
 AU_per_day_to_m_per_s = Decimal('1.496e11') / Decimal('86400')  # meters/second
 G = Decimal('6.67430e-11')  # Gravitational constant
 
+i = 1
 def load_pos_and_vel(id, time=cur_time):
+    global i
+    cur_time = datetime(2024, 8, i, 0, 0)
+    i += 1
     obj = Horizons(id=id, epochs=date_to_epoch(time)).vectors()
     name = None
     for row in obj:

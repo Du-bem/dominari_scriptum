@@ -31,6 +31,7 @@ while True:
 
         # Load and encrypt data
         raw_data = load_pos_and_vel(399)
+        print(raw_data)
         encrypted_data = encrypt_json_to_string(raw_data)
 
         # Send the POST request

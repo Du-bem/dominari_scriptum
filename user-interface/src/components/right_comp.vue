@@ -171,8 +171,9 @@ import {
   RefreshCw,
   Shield
 } from "lucide-vue-next";
-import {getDataFromAPI} from "./getData.js";
-
+import { getDataFromAPI } from "./getData.js";
+import { usePlanetsStore } from "./mainState.js";
+const planets = usePlanetsStore();
 // Astral Body Types Dropdown
 const dropdownOpen = ref(false);
 const bodyTypes = ref([
@@ -199,7 +200,7 @@ const error = ref(null);
 // Format coordinate to 2 decimal places with unit
 const formatCoordinate = value => {
   if (value === undefined || value === null) return "N/A";
-  return `${value.toLocaleString(undefined, { maximumFractionDigits: 2 })} km`;
+  return `${value.toLocaleString(undefined, { maximumFractionDigits: 2 })} AU`;
 };
 
 const formatChecksum = value => {
@@ -212,7 +213,9 @@ const formatChecksum = value => {
 // Format velocity to 2 decimal places with unit
 const formatVelocity = value => {
   if (value === undefined || value === null) return "N/A";
-  return `${value.toLocaleString(undefined, { maximumFractionDigits: 2 })} m/s`;
+  return `${value.toLocaleString(undefined, {
+    maximumFractionDigits: 2
+  })} AU/Day`;
 };
 
 // Calculate magnitude of a vector
@@ -282,12 +285,16 @@ const classifyObject = name => {
   if (nameLower.includes("moon")) return "Moon";
   if (nameLower.includes("satellite")) return "Satellite";
 
-  return "Unknown";
+  return "Planet";
 };
 
 // Fetch data based on selected body type
 const fetchData = async () => {
-  const data = await getDataFromAPI();
+  if (planets.data === undefined) {
+    await getDataFromAPI();
+  }
+  const data = planets.data;
+  console.log(data.position);
   loading.value = true;
   error.value = null;
 
@@ -328,7 +335,7 @@ const fetchData = async () => {
       .padStart(2, "0");
 
     astralData.value = {
-      name: `${singularType} ${id}`,
+      name: `${id}`,
       time: `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`,
       position: [data.position[0], data.position[1], data.position[2]],
       velocity: [data.velocity[0], data.velocity[1], data.velocity[2]],
@@ -342,9 +349,15 @@ const fetchData = async () => {
   }
 };
 
+function repeatFunction(func) {
+  setInterval(func, 100);
+}
+
+repeatFunction(fetchData);
+
 // Fetch data on component mount
 onMounted(() => {
-  fetchData();
+  planets.loadData();
 
   // Close dropdown when clicking outside
   document.addEventListener("click", e => {
@@ -517,6 +530,7 @@ onMounted(() => {
   flex-direction: column;
   align-items: center;
   background-color: rgba(0, 0, 0, 0.3);
+  width: 89px;
   padding: 6px;
   border-radius: 4px;
 }

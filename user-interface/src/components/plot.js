@@ -1,7 +1,6 @@
 import * as THREE from "three";
 import Planet from "./planet.js";
 
-
 class SolarSystem {
   time;
   renderer;
@@ -49,7 +48,7 @@ class SolarSystem {
 
     // Camera setup
     this.camera = new THREE.PerspectiveCamera(60, 1, 0.1, 1000);
-    this.camera.position.set(0, 4, 2.5);
+    this.camera.position.set(0, 3.5, 1.5);
     this.camera.lookAt(0, 0, 0);
 
     // Add starfield and objects
@@ -145,16 +144,12 @@ class SolarSystem {
   addObjects(objectsData) {
     // Add new objects to the array
     for (let data of objectsData) {
-      this.addObject(
-        data
-      );
+      this.addObject(data);
     }
   }
 
   // Method to add a single object with a source object reference
-  addObject(
-    planet
-  ) {
+  addObject(planet) {
     this.objects.push(planet);
 
     // Create a mesh for the object
@@ -198,7 +193,7 @@ class SolarSystem {
     );
 
     mainMesh.add(outlineMesh);
-    
+
     mainMesh.position.set(...obj.pos);
 
     // // Add subtle animation offset
@@ -323,8 +318,7 @@ class SolarSystem {
   animate() {
     requestAnimationFrame(this.animate.bind(this));
 
-    if(this.prediction){
-
+    if (this.prediction) {
       // Update each planet using the new physics
       const deltaTime = 1; // Adjust as needed
       for (let index = 0; index < 1; index++) {
@@ -333,17 +327,15 @@ class SolarSystem {
             planet.update(deltaTime, this.objects);
           }
         });
-        
       }
       this.updateAllMeshes();
     }
-    
+
     // Render the scene
     this.renderer.render(this.scene, this.camera);
   }
 
-
-  enablePrediction(choice){
+  enablePrediction(choice) {
     this.prediction = choice;
   }
 

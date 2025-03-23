@@ -19,12 +19,12 @@ func run(ctx context.Context, quit chan error) {
 	var err error
 	var dbName string
 	var serverAPI types.ServerAPI
-	if os.Getenv("USER_TYPE") == "admin" {
-		serverAPI.AccountWalletInfo, err = server.NewAdminAPI(ctx) // Admin API
-		dbName = "admin.db"
-	} else {
+	if os.Getenv("USER_TYPE") == "user" {
 		serverAPI.AccountWalletInfo, err = server.NewUserAPI(ctx) // User API
 		dbName = "user.db"
+	} else {
+		serverAPI.AccountWalletInfo, err = server.NewAdminAPI(ctx) // Admin API
+		dbName = "admin.db"
 	}
 
 	if err != nil {

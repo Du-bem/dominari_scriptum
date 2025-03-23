@@ -134,6 +134,12 @@ func (s *serverAPI) handleSatelliteDataStore(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	if data.Name == "" || len(data.Position) == 0 || len(data.Position) == 0 {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, `{"error" : "empty data fields found"}`)
+		return
+	}
+
 	checkSumStr := hex.EncodeToString(checksum.Sha256Checksum(data))
 	_, err = s.Insert(checkSumStr, &data)
 	if err != nil {

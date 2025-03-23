@@ -1,29 +1,52 @@
 package types
 
 import (
+	"strings"
 	"time"
 
 	"github.com/bitcoin-sv/spv-wallet/models/response"
 )
 
+const timeFormat string = "2006-01-02 15:04:05"
+
+type satelliteTime time.Time
+
+func (c *satelliteTime) UnmarshalJSON(b []byte) error {
+	value := strings.Trim(string(b), `"`) //get rid of "
+	if value == "" || value == "null" {
+		return nil
+	}
+
+	t, err := time.Parse(timeFormat, value) //parse time
+	if err != nil {
+		return err
+	}
+	*c = satelliteTime(t) //set result using the pointer
+	return nil
+}
+
+func (c satelliteTime) MarshalJSON() ([]byte, error) {
+	return []byte(`"` + time.Time(c).Format(timeFormat) + `"`), nil
+}
+
 // SatelliteRequestData defines the raw data received from the satelite.
 type SatelliteRequestData struct {
-	Name       string    `json:"name"`
-	RecordedOn time.Time `json:"time"`
-	Position   []float64 `json:"position"`
-	Velocity   []float64 `json:"velocity"`
+	Name       string        `json:"name"`
+	RecordedOn satelliteTime `json:"time"`
+	Position   []string      `json:"position"`
+	Velocity   []string      `json:"velocity"`
 }
 
 // SatelliteUIData describes the data processed for the UI display
 type SatelliteUIData struct {
 	ID         int       `json:"id"`
 	Name       string    `json:"name"`
-	PositionX  float64   `json:"position_x"`
-	PositionY  float64   `json:"position_y"`
-	PositionZ  float64   `json:"position_z"`
-	VelocityX  float64   `json:"velocity_x"`
-	VelocityY  float64   `json:"velocity_y"`
-	VelocityZ  float64   `json:"velocity_z"`
+	PositionX  string    `json:"position_x"`
+	PositionY  string    `json:"position_y"`
+	PositionZ  string    `json:"position_z"`
+	VelocityX  string    `json:"velocity_x"`
+	VelocityY  string    `json:"velocity_y"`
+	VelocityZ  string    `json:"velocity_z"`
 	RecordedOn time.Time `json:"time"`
 	CreatedOn  time.Time `json:"created_on"`
 	UpdatedOn  time.Time `json:"updated_on"`

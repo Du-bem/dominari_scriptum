@@ -18,13 +18,13 @@ const CREATE_DATABASE string = `
 		id INTEGER NOT NULL PRIMARY KEY,
 		name TEXT NOT NULL,
 
-		position_x REAL NOT NULL,
-		position_y REAL NOT NULL,
-		position_z REAL NOT NULL,
+		position_x TEXT NOT NULL,
+		position_y TEXT NOT NULL,
+		position_z TEXT NOT NULL,
 
-		velocity_x REAL NOT NULL,
-		velocity_y REAL NOT NULL,
-		velocity_z REAL NOT NULL,
+		velocity_x TEXT NOT NULL,
+		velocity_y TEXT NOT NULL,
+		velocity_z TEXT NOT NULL,
 
 		recorded_on DATETIME NOT NULL,
 		created_on DATETIME NOT NULL,
@@ -52,10 +52,10 @@ func NewDatabase(ctx context.Context, fileName string) (types.DBInfo, error) {
 
 // Insert pushes the satellites raw data into the db.
 func (d *DB) Insert(checksum string, data *types.SatelliteRequestData) (int, error) {
-	res, err := d.ExecContext(d.ctx, "INSERT INTO satellite_data VALUES(?,?,?,?,?,?,?,?,?,?,?);",
+	res, err := d.ExecContext(d.ctx, "INSERT INTO satellite_data VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?);",
 		data.Name, data.Position[0], data.Position[1], data.Position[2],
 		data.Velocity[0], data.Velocity[1], data.Velocity[2],
-		data.RecordedOn, time.Now().UTC(), time.Now().UTC(), checksum)
+		time.Time(data.RecordedOn), time.Now().UTC(), time.Now().UTC(), checksum)
 	if err != nil {
 		return 0, err
 	}

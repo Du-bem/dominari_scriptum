@@ -2,14 +2,15 @@ package server
 
 import (
 	"context"
+	"fmt"
 	"os"
 
+	"github.com/Du-bem/dominari_scriptum/main_node/types"
 	wallet "github.com/bitcoin-sv/spv-wallet-go-client"
 	"github.com/bitcoin-sv/spv-wallet-go-client/config"
 	"github.com/bitcoin-sv/spv-wallet-go-client/queries"
 	"github.com/bitcoin-sv/spv-wallet/models/filter"
 	"github.com/bitcoin-sv/spv-wallet/models/response"
-	"github.com/Du-bem/dominari_scriptum/main_node/types"
 )
 
 type CommonData struct {
@@ -24,6 +25,8 @@ type UserData struct {
 
 // NewUserAPI returns the accounts management interface for the  admin
 func NewUserAPI(ctx context.Context) (types.AccountWalletInfo, error) {
+	fmt.Println("Running the User API with the privated Key!")
+
 	userAPI, err := wallet.NewUserAPIWithXPriv(
 		config.New(config.WithAddr(os.Getenv("WALLET_URL"))), os.Getenv("USER_XPRIV"),
 	)

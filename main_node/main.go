@@ -16,8 +16,6 @@ import (
 )
 
 func run(ctx context.Context, quit chan error) {
-	fmt.Println("Running the Admin API with with privated Key!")
-
 	var err error
 	var dbName string
 	var serverAPI types.ServerAPI
@@ -80,5 +78,5 @@ func main() {
 
 	<-ctx.Done() // Exit the goroutine once the context is cancelled
 
-	fmt.Println("!!!!! System shutting down !!!!!")
+	fmt.Println("\n\n\t!!!!! System shutting down !!!!!")
 }

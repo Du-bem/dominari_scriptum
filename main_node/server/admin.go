@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"fmt"
 	"os"
 
 	"github.com/Du-bem/dominari_scriptum/main_node/types"
@@ -16,10 +17,12 @@ import (
 type AdminData struct {
 	CommonData
 	adminAPI *wallet.AdminAPI
-} 
+}
 
 // NewAdminAPI returns the accounts management interface for the  admin
 func NewAdminAPI(ctx context.Context) (types.AccountWalletInfo, error) {
+	fmt.Println("Running the Admin API with the privated Key!")
+
 	adminAPIData, err := wallet.NewAdminAPIWithXPriv(
 		config.New(config.WithAddr(os.Getenv("WALLET_URL"))), os.Getenv("USER_XPRIV"),
 	)
@@ -27,10 +30,10 @@ func NewAdminAPI(ctx context.Context) (types.AccountWalletInfo, error) {
 		return nil, err
 	}
 
-	res, err := adminAPIData.CreateXPub(ctx, &commands.CreateUserXpub{XPub: os.Getenv("USER_XPUB")})
-	if err != nil {
-		return nil, err
-	}
+	res, err := adminAPIData.CreateXPub(ctx,
+		&commands.CreateUserXpub{
+			XPub: os.Getenv("USER_XPUB"),
+		})
 
 	return &AdminData{
 		CommonData: CommonData{

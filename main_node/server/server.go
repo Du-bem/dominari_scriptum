@@ -69,7 +69,13 @@ func (s serverAPI) handleListSatelliteData(w http.ResponseWriter, r *http.Reques
 	vars := mux.Vars(r)
 	val, ok := vars["offset"]
 	if ok {
-		offset, _ := strconv.Atoi(val)
+		offset, err := strconv.Atoi(val)
+		if err != nil {
+			w.WriteHeader(http.StatusNotFound)
+			fmt.Fprintf(w, `{"error" : "%s"}`, err)
+			return
+		}
+
 		data, err := s.List(offset)
 		if err == nil {
 			jData, _ := json.Marshal(data)
@@ -93,7 +99,13 @@ func (s *serverAPI) handleSearchSatelliteByID(w http.ResponseWriter, r *http.Req
 	vars := mux.Vars(r)
 	txID, ok := vars["txid"]
 	if ok {
-		id, _ := strconv.Atoi(txID)
+		id, err := strconv.Atoi(txID)
+		if err != nil {
+			w.WriteHeader(http.StatusNotFound)
+			fmt.Fprintf(w, `{"error" : "%s"}`, err)
+			return
+		}
+
 		data, err := s.SearchByID(id)
 		if err == nil {
 			jData, _ := json.Marshal(data)

@@ -45,7 +45,8 @@ func NewDatabase(ctx context.Context, fileName string) (types.DBInfo, error) {
 	}
 
 	return &DB{
-		DB: db,
+		DB:  db,
+		ctx: ctx,
 	}, nil
 }
 
@@ -69,7 +70,7 @@ func (d *DB) Insert(checksum string, data *types.SatelliteRequestData) (int, err
 // List returns a batch of 10 records of the Satellite data if they exist
 func (d *DB) List(offset int) ([]*types.SatelliteUIData, error) {
 	rows, err := d.QueryContext(d.ctx,
-		"SELECT * FROM satellite_data ORDER BY id DESC OFFSET ? LIMIT 10", offset)
+		"SELECT * FROM satellite_data ORDER BY id DESC LIMIT ?, 10", offset)
 	if err != nil {
 		return nil, err
 	}
